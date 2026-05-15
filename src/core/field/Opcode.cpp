@@ -4118,7 +4118,7 @@ QString Opcode::toStringMOVE(const Section1File *scriptsAndTexts, const OpcodeMO
 QString Opcode::toStringCMOVE(const Section1File *scriptsAndTexts, const OpcodeCMOVE &opcode) const
 {
 	Q_UNUSED(scriptsAndTexts)
-	return Opcode::tr("Place field Model without animation (X=%1, Y=%2)")
+	return Opcode::tr("Move field Model without animation (X=%1, Y=%2)")
 	        .arg(
 	            _var(opcode.targetX, B1(opcode.banks)),
 	            _var(opcode.targetY, B2(opcode.banks))
@@ -4151,7 +4151,7 @@ QString Opcode::toStringANIMW(const Section1File *scriptsAndTexts, const OpcodeA
 QString Opcode::toStringFMOVE(const Section1File *scriptsAndTexts, const OpcodeFMOVE &opcode) const
 {
 	Q_UNUSED(scriptsAndTexts)
-	return Opcode::tr("Place field Model without animation (X=%1, Y=%2)")
+	return Opcode::tr("Move field Model without animation (X=%1, Y=%2)")
 	        .arg(
 	            _var(opcode.targetX, B1(opcode.banks)),
 	            _var(opcode.targetY, B2(opcode.banks))

@@ -128,7 +128,7 @@ bool AFile::write(const FieldModelAnimation &animation) const
 		}
 		
 		for (quint32 j = 0; j < header.boneCount; ++j) {
-			const PolyVertex &rot = animation.rotations(i).at(j);
+			PolyVertex rot = animation.rotations(i).at(j);
 			
 			if (device()->write((const char *)&rot, 12) != 12) {
 				return false;

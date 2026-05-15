@@ -919,17 +919,17 @@ void Window::setWindowTitle()
 			windowTitle = "[*]";
 
 			if (!current.isEmpty()) {
-				 windowTitle.append(current).append(" - ");
+				windowTitle.append(current).append(" - ");
 			}
 		} else { // [current ](*archive) - MAKOU_REACTOR_NAME
 			if (!current.isEmpty()) {
-				 windowTitle.append(current).append(" (");
+				windowTitle.append(current).append(" (");
 			}
 
-			windowTitle.append("[*]").append(fieldArchive->io()->name());
+			windowTitle.append("[*]").append(fieldArchive->io()->path());
 
 			if (!current.isEmpty()) {
-				 windowTitle.append(")");
+				windowTitle.append(")");
 			}
 
 			windowTitle.append(" - ");

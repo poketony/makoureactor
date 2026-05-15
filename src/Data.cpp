@@ -390,7 +390,7 @@ int Data::loadKernel2Bin()
 			return 2;
 		}
 
-		const QByteArray &data = LZS::decompressAll(fic.read(fileSize));
+		QByteArray data = LZS::decompressAll(fic.read(fileSize));
 		const char *constData = data.constData();
 		int pos = 0;
 		qsizetype dataSize = data.size();

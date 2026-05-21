@@ -2300,6 +2300,14 @@ Some scripts can refer to it!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Move field Model without animation or rotation (X=%1, Y=%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move field Model without animation (X=%1, Y=%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>%4 = ((Sinus(%1) * %2) + %3) &gt;&gt; 12</source>
         <translation>%4 = ((サイン (%1) * %2) + %3) &gt;&gt; 12</translation>
     </message>
@@ -3348,7 +3356,7 @@ Some scripts can refer to it!</source>
     </message>
     <message>
         <source>Place field Model without animation (X=%1, Y=%2)</source>
-        <translation>3Dモデルをアニメーション抜きで移動 (X=%1, Y=%2)</translation>
+        <translation type="vanished">3Dモデルをアニメーション抜きで移動 (X=%1, Y=%2)</translation>
     </message>
     <message>
         <source>Move field Model to the group %1</source>

@@ -2693,6 +2693,14 @@ Certains scripts peuvent y faire référence !</translation>
         <translation>%1 = GETX[%2][%3 + %4]</translation>
     </message>
     <message>
+        <source>Move field Model without animation or rotation (X=%1, Y=%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move field Model without animation (X=%1, Y=%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Add RGB(%6, %5, %4) on the colors in a palette (2) (sourceTile=%1, targetTile=%2, first color=%3, color count=%7)</source>
         <translation>Additionner RVB(%6, %5, %4) sur les couleurs d&apos;une palette (2) (sourceTile=%1, targetTile=%2, première couleur=%3, nombre de couleurs=%7)</translation>
     </message>
@@ -3800,7 +3808,7 @@ Certains scripts peuvent y faire référence !</translation>
     <message>
         <source>Place field Model without animation (X=%1, Y=%2)</source>
         <oldsource>Déplace l&apos;objet 3D sans animation (X=%1, Y=%2)</oldsource>
-        <translation>Déplace l&apos;objet 3D sans animation (X=%1, Y=%2)</translation>
+        <translation type="vanished">Déplace l&apos;objet 3D sans animation (X=%1, Y=%2)</translation>
     </message>
     <message>
         <source>Move field Model to the group %1</source>

@@ -117,11 +117,6 @@ void Renderer::clear()
 	mGL.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::show()
-{
-	mWidget->update();
-}
-
 void Renderer::reset()
 {
 	mProjectionMatrix.setToIdentity();

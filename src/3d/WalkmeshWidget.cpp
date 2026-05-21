@@ -395,8 +395,6 @@ void WalkmeshWidget::paintGL()
 
 		gpuRenderer->draw(RendererPrimitiveType::PT_POINTS, 7.0f);
 	}
-
-	gpuRenderer->show();
 }
 
 void WalkmeshWidget::drawBackground()

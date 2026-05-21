@@ -339,8 +339,6 @@ void FieldModel::paintGL()
 	gpuRenderer->bindViewMatrix(mView);
 
 	paintModel();
-
-	gpuRenderer->show();
 }
 
 void FieldModel::wheelEvent(QWheelEvent *event)

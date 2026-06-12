@@ -132,10 +132,8 @@ Window::Window() :
 
 	actionJp_txt = menu->addAction(tr("&Japanese Characters"), this, &Window::jpText);
 	actionJp_txt->setCheckable(true);
-	const bool koreanText = Config::value("kr_txt", false).toBool();
-	actionJp_txt->setChecked(Config::value("jp_txt", false).toBool() || koreanText);
+	actionJp_txt->setChecked(Config::value("jp_txt", false).toBool());
 	FF7Text::setJapanese(actionJp_txt->isChecked());
-	FF7Text::setKorean(koreanText);
 	connect(actionJp_txt, &QAction::toggled, FF7Text::get(), &FF7Text::setJapanese);
 
 	menuLang = menu->addMenu(tr("&Language"));
@@ -378,10 +376,6 @@ FieldArchive::Sorting Window::getFieldSorting()
 void Window::jpText(bool enabled)
 {
 	Config::setValue("jp_txt", enabled);
-	if (!enabled) {
-		Config::setValue("kr_txt", false);
-		FF7Text::setKorean(false);
-	}
 	if (_textDialog) {
 		_textDialog->updateText();
 	}
@@ -1874,9 +1868,7 @@ void Window::config()
 {
 	ConfigWindow configWindow(this);
 	if (configWindow.exec() == QDialog::Accepted) {
-		const bool koreanText = Config::value("kr_txt", false).toBool();
-		actionJp_txt->setChecked(Config::value("jp_txt", false).toBool() || koreanText);
-		FF7Text::setKorean(koreanText);
+		actionJp_txt->setChecked(Config::value("jp_txt", false).toBool());
 		if (_textDialog) {
 			_textDialog->updateText();
 		}

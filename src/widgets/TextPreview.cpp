@@ -50,10 +50,8 @@ TextPreview::TextPreview(QWidget *parent) :
 
 void TextPreview::fillNames()
 {
-	const bool kr = Config::value("kr_txt", false).toBool();
-	const bool jp = Config::value("jp_txt", false).toBool() || kr;
+	const bool jp = Config::value("jp_txt", false).toBool();
 	FF7Text::setJapanese(jp);
-	FF7Text::setKorean(kr);
 	QString lang = jp ? QStringLiteral("ja") : QStringLiteral("en");
 	QTranslator *translator = ff7tkInfo::translations().value(lang);
 	for (int i = 0; i < 12; ++i) {
@@ -328,8 +326,7 @@ void TextPreview::drawWindow(QPainter *painter, int maxW, int maxH, QRgb colorTo
 bool TextPreview::drawTextArea(QPainter *painter)
 {
 	bool blink = false, useTimer = false;
-	const bool kr = Config::value("kr_txt", false).toBool();
-	const bool jp = Config::value("jp_txt", false).toBool() || kr;
+	const bool jp = Config::value("jp_txt", false).toBool();
 	FF7Window ff7Window = getWindow();
 	spaced_characters = false;
 	multicolor = -1;
@@ -377,7 +374,7 @@ bool TextPreview::drawTextArea(QPainter *painter)
 			x = 8;
 			y += 16;
 			if (y > maxH-16)	break;
-		} else if (kr && charId >= 0xc0 && charId <= 0xcc) {
+		} else if (jp && charId >= 0xc0 && charId <= 0xcc) {
 			++i;
 			if (i >= size)	break;
 			QByteArray koreanBytes;

@@ -848,7 +848,7 @@ bool Section1File::searchTextP(const QRegularExpression &text, int &textID, qsiz
 
 bool Section1File::replaceText(const QRegularExpression &search, const QString &after, int textID, int from)
 {
-	bool jp = Config::value("jp_txt", false).toBool() || Config::value("kr_txt", false).toBool();
+	bool jp = Config::value("jp_txt", false).toBool();
 	FF7String beforeT = text(textID);
 	QString before = beforeT.text();
 	QRegularExpressionMatch match = search.match(before, from);

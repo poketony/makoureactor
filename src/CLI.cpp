@@ -30,9 +30,7 @@
 namespace {
 void setTextEncodingFromConfig()
 {
-	const bool koreanText = Config::value("kr_txt", false).toBool();
-	FF7Text::setJapanese(Config::value("jp_txt", false).toBool() || koreanText);
-	FF7Text::setKorean(koreanText);
+	FF7Text::setJapanese(Config::value("jp_txt", false).toBool());
 }
 }
 

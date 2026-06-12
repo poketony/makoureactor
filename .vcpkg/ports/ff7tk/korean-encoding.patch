@@ -240,51 +240,11 @@
  
  #if QT_VERSION < QT_VERSION_CHECK(6, 5, 0)
  #include <QRegularExpressionMatch>
-@@ -28,15 +261,38 @@
- 
- void FF7Text::setJapanese(bool japanese)
- {
--    if(japanese == get()->d->in_ja)
-+    const bool changed = japanese != get()->d->in_ja || (!japanese && get()->d->in_ko);
-+    if (!changed) {
-         return;
-+    }
-     get()->d->in_ja = japanese;
-+    if (!japanese) {
-+        get()->d->in_ko = false;
-+    }
-     Q_EMIT get()->languageChanged();
- }
- 
- bool FF7Text::isJapanese()
- {
-     return get()->d->in_ja;
-+}
-+
-+void FF7Text::setKorean(bool korean)
-+{
-+    const bool changed = korean != get()->d->in_ko || (korean && !get()->d->in_ja);
-+    if (!changed) {
-+        return;
-+    }
-+    get()->d->in_ko = korean;
-+    if (korean) {
-+        get()->d->in_ja = true;
-+    }
-+    Q_EMIT get()->languageChanged();
-+}
-+
-+bool FF7Text::isKorean()
-+{
-+    return get()->d->in_ko;
- }
- 
- QString FF7Text::toPC(QByteArray text)
 @@ -84,6 +340,16 @@
              }
          }
  
-+        if (get()->isKorean() && isKoreanFontPrefix(index)) {
++        if (get()->isJapanese() && isKoreanFontPrefix(index)) {
 +            if (i + 1 >= text.size()) {
 +                continue;
 +            }
@@ -302,7 +262,7 @@
          if (isSpecial)
              comp = comp.toUpper();
 +
-+        if (get()->d->in_ko && j == 1) {
++        if (get()->d->in_ja && j == 1) {
 +            const int glyphIndex = koreanGlyphIndex(string.at(c));
 +            if (glyphIndex >= 0) {
 +                ff7str.append(char(KOREAN_FONT_PREFIX_FIRST + glyphIndex / KOREAN_FONT_SLOTS_PER_PAGE));
@@ -314,34 +274,3 @@
  
          if (!get()->d->in_ja) {
              for (int i = 0 ; i <= 0xFF ; ++i) {
---- a/src/data/FF7Text.h
-+++ b/src/data/FF7Text.h
-@@ -21,6 +21,7 @@
-     QML_ELEMENT
-     QML_SINGLETON
-     Q_PROPERTY(bool japanese READ isJapanese WRITE setJapanese NOTIFY languageChanged)
-+    Q_PROPERTY(bool korean READ isKorean WRITE setKorean NOTIFY languageChanged)
- public:
-     /**
-      * @brief Get the FF7Text Instance.
-@@ -32,6 +33,12 @@
- 
-     /*! \brief returns True if using Japanese mode. */
-     static bool isJapanese();
-+
-+    /*! \brief sets Korean extended text mode. Korean mode implies Japanese mode. */
-+    static void setKorean(bool korean);
-+
-+    /*! \brief returns True if using Korean extended text mode. */
-+    static bool isKorean();
- 
-     /*! \brief convert ff7text to pc string
-      *  \param text the raw ff7text to read
-@@ -57,6 +64,7 @@
- 
-     struct FF7TextPrivate{
-         bool in_ja = false; /**< if true toPC will give us Japanese characters*/
-+        bool in_ko = false; /**< if true C0..CC two-byte codes are decoded as Korean Hangul*/
-         inline static const QStringList eng = {
-             QStringLiteral(" "), QStringLiteral("!"), QStringLiteral("\""), QStringLiteral("#"), QStringLiteral("$"), QStringLiteral("%"), QStringLiteral("&"), QStringLiteral("'"), QStringLiteral("("), QStringLiteral(")"), QStringLiteral("*"), QStringLiteral("+"), QStringLiteral(","), QStringLiteral("-"), QStringLiteral("."), QStringLiteral("/")
-             , QStringLiteral("0"), QStringLiteral("1"), QStringLiteral("2"), QStringLiteral("3"), QStringLiteral("4"), QStringLiteral("5"), QStringLiteral("6"), QStringLiteral("7"), QStringLiteral("8"), QStringLiteral("9"), QStringLiteral(":"), QStringLiteral(";"), QStringLiteral("<"), QStringLiteral("="), QStringLiteral(">"), QStringLiteral("?")

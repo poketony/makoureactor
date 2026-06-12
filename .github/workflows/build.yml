@@ -1,6 +1,7 @@
 name: CI/CD
 
 on:
+  workflow_dispatch: null
   push:
     branches: [ master ]
   pull_request:
@@ -335,4 +336,3 @@ jobs:
        files: |
          artifact-*/*
          debian-artifacts-*/*
-

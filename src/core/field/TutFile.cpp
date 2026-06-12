@@ -215,7 +215,7 @@ bool TutFile::parseText(int tutID, const QString &tuto)
 	QByteArray ret;
 	bool ok, multilineText = false;
 	ushort value;
-	bool jp = Config::value("jp_txt", false).toBool();
+	bool jp = Config::value("jp_txt", false).toBool() || Config::value("kr_txt", false).toBool();
 
 	for (QString line : std::as_const(lines)) {
 		QString rawLine = line;

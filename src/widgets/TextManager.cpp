@@ -328,7 +328,7 @@ void TextManager::setTextChanged()
 	QString newText = textEdit->toPlainText();
 	int textId = item->data(Qt::UserRole).toInt();
 	const FF7String &t = scriptsAndTexts->text(textId);
-	bool jp = Config::value("jp_txt", false).toBool();
+	bool jp = Config::value("jp_txt", false).toBool() || Config::value("kr_txt", false).toBool();
 
 	if (newText != t.text()) {
 		scriptsAndTexts->setText(textId, FF7String(newText, jp));

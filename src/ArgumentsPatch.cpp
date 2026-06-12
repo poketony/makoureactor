@@ -22,6 +22,8 @@ ArgumentsPatch::ArgumentsPatch() : CommonArguments()
 	_ADD_FLAG("remove-dialogs", "Remove in-game dialogs.");
 	_ADD_FLAG("remove-encounters", "Remove random encounters, but not scripted encounters.");
 	_ADD_FLAG("autosize-text-windows", "Autosize windows when the content can be guessed.");
+	_ADD_ARGUMENT("import-text", "Import field text files from directory.", "directory", "");
+	_ADD_ARGUMENT("import-text-format", "Text import format (txt, xml). Defaults to txt.", "format", "txt");
 	_ADD_FLAG("clean-model-loader", "Clean model loader section format (PC format only)");
 	_ADD_FLAG("remove-tiles-sections", "Remove unused tiles sections (PC format only)");
 	_ADD_FLAG("repair-backgrounds", "Repair lastmap (completely) and fr_e (partially) backgrounds. "
@@ -59,6 +61,16 @@ bool ArgumentsPatch::autosizeTextWindows() const
 	return _parser.isSet("autosize-text-windows");
 }
 
+QString ArgumentsPatch::importTextDirectory() const
+{
+	return _parser.value("import-text");
+}
+
+QString ArgumentsPatch::importTextFormat() const
+{
+	return _parser.value("import-text-format");
+}
+
 bool ArgumentsPatch::cleanModelLoader() const
 {
 	return _parser.isSet("clean-model-loader");
@@ -82,6 +94,20 @@ void ArgumentsPatch::parse()
 		qWarning() << qPrintable(
 		    QCoreApplication::translate("Arguments", "Error: too much parameters"));
 		exit(1);
+	}
+	if (_parser.isSet("import-text")) {
+		const QString format = importTextFormat();
+		if (format != "txt" && format != "xml") {
+			qWarning() << qPrintable(
+			    QCoreApplication::translate("Arguments", "Error: --import-text-format must be txt or xml"));
+			exit(1);
+		}
+		if (!QDir(importTextDirectory()).exists()) {
+			qWarning() << qPrintable(
+			    QCoreApplication::translate("Arguments", "Error: import text directory does not exist:"))
+			           << qPrintable(importTextDirectory());
+			exit(1);
+		}
 	}
 
 	QStringList paths = wilcardParse();

@@ -1922,8 +1922,6 @@ bool FieldArchive::exportation(const QList<int> &selectedFields, const QString &
 bool FieldArchive::importation(const QList<int> &selectedFields, const QString &directory,
 							   const QMap<Field::FieldSection, QString> &toImport)
 {
-	Q_UNUSED(directory) //TODO
-
 	if (selectedFields.isEmpty() || toImport.isEmpty()) {
 		return true;
 	}
@@ -1937,7 +1935,25 @@ bool FieldArchive::importation(const QList<int> &selectedFields, const QString &
 			if (toImport.contains(Field::Scripts)) {
 				Section1File *section1 = f->scriptsAndTexts();
 				if (section1->isOpen()) {
-					//TODO
+					const QString extension = toImport.value(Field::Scripts);
+					const QString path = QDir::cleanPath(QString("%1/%2.%3").arg(directory, f->name(), extension));
+					if (!QFile::exists(path)) {
+						qWarning() << "FieldArchive::importation missing text file" << qPrintable(path);
+					} else {
+						QFile textImport(path);
+						Section1File::ExportFormat format;
+						if (extension == "txt") {
+							format = Section1File::TXTText;
+						} else if (extension == "xml") {
+							format = Section1File::XMLText;
+						} else {
+							return false;
+						}
+
+						if (!section1->importer(&textImport, format)) {
+							return false;
+						}
+					}
 				}
 			}
 		}

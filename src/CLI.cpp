@@ -20,10 +20,22 @@
 #include "ArgumentsExport.h"
 #include "ArgumentsPatch.h"
 #include "ArgumentsTools.h"
+#include "core/Config.h"
+#include "core/field/Field.h"
 #include "core/field/FieldArchivePS.h"
 #include "core/field/FieldArchivePC.h"
 #include "core/field/BackgroundFilePC.h"
+#include <FF7Text>
 #include <iostream>
+
+namespace {
+void setTextEncodingFromConfig()
+{
+	const bool koreanText = Config::value("kr_txt", false).toBool();
+	FF7Text::setJapanese(Config::value("jp_txt", false).toBool() || koreanText);
+	FF7Text::setKorean(koreanText);
+}
+}
 
 void CLIObserver::setObserverValue(int value)
 {
@@ -181,6 +193,18 @@ void CLI::commandPatch()
 
 	observer.setObserverMaximum(uint(selectedFields.size()));
 
+	if (!argsPatch.importTextDirectory().isEmpty()) {
+		QMap<Field::FieldSection, QString> toImport;
+		toImport.insert(Field::Scripts, argsPatch.importTextFormat());
+		if (!fieldArchive->importation(selectedFields, argsPatch.importTextDirectory(), toImport)) {
+			qWarning() << qPrintable(QCoreApplication::translate("CLI", "An error occurred when importing"));
+			delete fieldArchive;
+			return;
+		}
+	}
+
+	observer.setObserverMaximum(uint(selectedFields.size()));
+
 	int i = 0;
 
 	for (const int &mapID : selectedFields) {
@@ -322,6 +346,8 @@ void CLI::commandTools()
 
 FieldArchive *CLI::openFieldArchive(const QString &ext, const QString &path)
 {
+	setTextEncodingFromConfig();
+
 	bool isPS;
 	FieldArchiveIO::Type type;
 

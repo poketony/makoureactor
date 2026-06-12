@@ -492,30 +492,81 @@ bool Section1File::exporter(QIODevice *device, ExportFormat format)
 
 bool Section1File::importer(QIODevice *device, ExportFormat format)
 {
-	Q_UNUSED(format)
-	//TODO
-	// bool jp = Config::value("jp_txt", false).toBool();
-	bool start = false, field = false, texts = false;
-
-	QXmlStreamReader stream(device);
-
-	while (!stream.atEnd()) {
-		QXmlStreamReader::TokenType type = stream.readNext();
-		if (!start && type == QXmlStreamReader::StartDocument) {
-			start = true;
-		} else if (start && !field && type == QXmlStreamReader::StartElement
-				  && stream.name() == QLatin1String("field")) {
-			field = true;
-		} else if (field && !texts && type == QXmlStreamReader::StartElement
-				  && stream.name() == QLatin1String("texts")) {
-			texts = true;
-		} else if (texts && type == QXmlStreamReader::StartElement
-				  && stream.name() == QLatin1String("text")) {
-//			stream.attributes().value("id");
-		}
+	if (!device->open(QIODevice::ReadOnly | QIODevice::Text)) {
+		return false;
 	}
 
-	return stream.hasError();
+	bool jp = Config::value("jp_txt", false).toBool() || Config::value("kr_txt", false).toBool();
+	bool imported = false;
+
+	switch (format) {
+	case TXTText: {
+		QString content = QString::fromUtf8(device->readAll());
+		device->close();
+
+		QRegularExpression marker(QStringLiteral("(?m)^---TEXT(\\d+)---\\r?$"));
+		QRegularExpressionMatchIterator it = marker.globalMatch(content);
+		QList<QRegularExpressionMatch> markers;
+		while (it.hasNext()) {
+			markers.append(it.next());
+		}
+
+		for (int i = 0; i < markers.size(); ++i) {
+			const QRegularExpressionMatch &match = markers.at(i);
+			bool ok = false;
+			int textID = match.captured(1).toInt(&ok);
+			if (!ok || textID < 0 || textID >= textCount()) {
+				qWarning() << "Section1File::importer invalid text id" << match.captured(1);
+				return false;
+			}
+
+			qsizetype textStart = match.capturedEnd();
+			if (textStart < content.size() && content.at(textStart) == QLatin1Char('\n')) {
+				++textStart;
+			}
+			qsizetype textEnd = i + 1 < markers.size() ? markers.at(i + 1).capturedStart() : content.size();
+			QString text = content.mid(textStart, textEnd - textStart);
+			if (text.endsWith(QLatin1String("\r\n"))) {
+				text.chop(2);
+			} else if (text.endsWith(QLatin1Char('\n')) || text.endsWith(QLatin1Char('\r'))) {
+				text.chop(1);
+			}
+
+			setText(textID, FF7String(text, jp));
+			imported = true;
+		}
+
+		return imported;
+	}
+	case XMLText: {
+		QXmlStreamReader stream(device);
+
+		while (!stream.atEnd()) {
+			QXmlStreamReader::TokenType type = stream.readNext();
+			if (type == QXmlStreamReader::StartElement
+			    && stream.name() == QLatin1String("text")) {
+				bool ok = false;
+				QString textIDValue = stream.attributes().value(QStringLiteral("id")).toString();
+				int textID = textIDValue.toInt(&ok);
+				if (!ok || textID < 0 || textID >= textCount()) {
+					qWarning() << "Section1File::importer invalid text id"
+					           << textIDValue;
+					device->close();
+					return false;
+				}
+
+				setText(textID, FF7String(stream.readElementText(QXmlStreamReader::IncludeChildElements), jp));
+				imported = true;
+			}
+		}
+
+		device->close();
+		return imported && !stream.hasError();
+	}
+	}
+
+	device->close();
+	return false;
 }
 
 bool Section1File::isModified() const

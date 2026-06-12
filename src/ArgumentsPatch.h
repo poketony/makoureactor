@@ -28,6 +28,8 @@ public:
 	bool removeDialogs() const;
 	bool removeEncounters() const;
 	bool autosizeTextWindows() const;
+	QString importTextDirectory() const;
+	QString importTextFormat() const;
 	bool cleanModelLoader() const;
 	bool removeTilesSections() const;
 	bool repairBackgrounds() const;

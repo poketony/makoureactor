@@ -103,7 +103,7 @@ Window::Window() :
 	actionChunks = fileMenu->addAction(QIcon::fromTheme(QStringLiteral("document-chunks-export")), tr("Expor&t map into chunks..."), QKeySequence("Ctrl+U"), this, &Window::exportCurrentMapIntoChunks);
 	actionMassExport = fileMenu->addAction(QIcon::fromTheme(QStringLiteral("document-export")), tr("&Mass Export..."), QKeySequence("Shift+Ctrl+E"), this, &Window::massExport);
 	actionImport = fileMenu->addAction(QIcon::fromTheme(QStringLiteral("document-import")),tr("&Import to current map..."), QKeySequence("Ctrl+I"), this, &Window::importToCurrentMap);
-//	actionMassImport = fileMenu->addAction(QIcon::fromTheme(QStringLiteral("document-import")), tr("Mass im&port..."), QKeySequence("Shift+Ctrl+I"), this, &Window::massImport);
+	actionMassImport = fileMenu->addAction(QIcon::fromTheme(QStringLiteral("document-import")), tr("Mass im&port..."), QKeySequence("Shift+Ctrl+I"), this, &Window::massImport);
 	fileMenu->addSeparator();
 	actionRun = fileMenu->addAction(QIcon::fromTheme(QStringLiteral("ff7")), tr("R&un FF7"), this, &Window::runFF7);
 	actionRun->setShortcut(Qt::Key_F8);
@@ -486,7 +486,7 @@ int Window::closeFile(bool quit)
 		actionExport->setEnabled(false);
 		actionChunks->setEnabled(false);
 		actionMassExport->setEnabled(false);
-//		actionMassImport->setEnabled(false);
+		actionMassImport->setEnabled(false);
 		actionImport->setEnabled(false);
 		_tabBar->setEnabled(false);
 		actionClose->setEnabled(false);
@@ -740,7 +740,7 @@ void Window::open(const QString &filePath, FieldArchiveIO::Type type, bool isPS)
 		actionMisc->setEnabled(true);
 		actionMiscOperations->setEnabled(true);
 		actionMassExport->setEnabled(true);
-//		actionMassImport->setEnabled(true);
+		actionMassImport->setEnabled(true);
 		actionImport->setEnabled(true);
 		actionModels->setEnabled(true);
 	}

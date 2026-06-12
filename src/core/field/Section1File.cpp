@@ -492,30 +492,79 @@ bool Section1File::exporter(QIODevice *device, ExportFormat format)
 
 bool Section1File::importer(QIODevice *device, ExportFormat format)
 {
-	Q_UNUSED(format)
-	//TODO
-	// bool jp = Config::value("jp_txt", false).toBool();
-	bool start = false, field = false, texts = false;
+	const bool jp = Config::value("jp_txt", false).toBool();
 
-	QXmlStreamReader stream(device);
-
-	while (!stream.atEnd()) {
-		QXmlStreamReader::TokenType type = stream.readNext();
-		if (!start && type == QXmlStreamReader::StartDocument) {
-			start = true;
-		} else if (start && !field && type == QXmlStreamReader::StartElement
-				  && stream.name() == QLatin1String("field")) {
-			field = true;
-		} else if (field && !texts && type == QXmlStreamReader::StartElement
-				  && stream.name() == QLatin1String("texts")) {
-			texts = true;
-		} else if (texts && type == QXmlStreamReader::StartElement
-				  && stream.name() == QLatin1String("text")) {
-//			stream.attributes().value("id");
+	switch (format) {
+	case TXTText: {
+		if (!device->open(QIODevice::ReadOnly | QIODevice::Text)) {
+			return false;
 		}
+
+		QString content = QString::fromUtf8(device->readAll());
+		device->close();
+
+		QRegularExpression marker(QStringLiteral("^---TEXT(\\d+)---\\r?\\n?"),
+		                          QRegularExpression::MultilineOption);
+		QRegularExpressionMatchIterator it = marker.globalMatch(content);
+		QList<QRegularExpressionMatch> matches;
+		while (it.hasNext()) {
+			matches.append(it.next());
+		}
+		if (matches.isEmpty()) {
+			return false;
+		}
+
+		for (qsizetype i = 0; i < matches.size(); ++i) {
+			bool ok = false;
+			int textID = matches.at(i).captured(1).toInt(&ok);
+			if (!ok || textID < 0 || textID >= _texts.size()) {
+				continue;
+			}
+
+			qsizetype start = matches.at(i).capturedEnd();
+			qsizetype end = i + 1 < matches.size()
+			                     ? matches.at(i + 1).capturedStart()
+			                     : content.size();
+			QString text = content.mid(start, end - start);
+			if (text.endsWith(QLatin1String("\r\n"))) {
+				text.chop(2);
+			} else if (text.endsWith(QLatin1Char('\n')) || text.endsWith(QLatin1Char('\r'))) {
+				text.chop(1);
+			}
+
+			setText(textID, FF7String(text, jp));
+		}
+
+		return true;
+	}
+	case XMLText: {
+		if (!device->open(QIODevice::ReadOnly)) {
+			return false;
+		}
+
+		bool imported = false;
+		QXmlStreamReader stream(device);
+
+		while (!stream.atEnd()) {
+			QXmlStreamReader::TokenType type = stream.readNext();
+			if (type == QXmlStreamReader::StartElement
+			    && stream.name() == QLatin1String("text")) {
+				bool ok = false;
+				int textID = stream.attributes().value("id").toInt(&ok);
+				QString text = stream.readElementText(QXmlStreamReader::IncludeChildElements);
+				if (ok && textID >= 0 && textID < _texts.size()) {
+					setText(textID, FF7String(text, jp));
+					imported = true;
+				}
+			}
+		}
+
+		device->close();
+		return imported && !stream.hasError();
+	}
 	}
 
-	return stream.hasError();
+	return false;
 }
 
 bool Section1File::isModified() const

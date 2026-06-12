@@ -49,6 +49,7 @@ public:
 	static void exec();
 private:
 	static void commandExport();
+	static void commandImport();
 	static void commandPatch();
 	static void commandTools();
 	static FieldArchive *openFieldArchive(const QString &ext, const QString &path);

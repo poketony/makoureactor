@@ -56,14 +56,16 @@ void TextPreview::fillNames()
 	QTranslator *translator = ff7tkInfo::translations().value(lang);
 	for (int i = 0; i < 12; ++i) {
 		if (i < 9) {
-			QString defaultName = FF7Char::defaultName(i);
+			QString englishName = FF7Char::defaultName(i);
+			QString defaultName = englishName;
 			if (translator != nullptr) {
 				QString translatedName = translator->translate("FF7Char", defaultName.toLatin1());
 				if (!translatedName.isEmpty()) {
 					defaultName = translatedName;
 				}
 			}
-			names.append(FF7Text::toFF7(Config::value(QStringLiteral("customCharName%1").arg(i), defaultName).toString()));
+			QString customName = Config::value(QStringLiteral("customCharName%1").arg(i)).toString();
+			names.append(FF7Text::toFF7(customName.isEmpty() || customName == englishName ? defaultName : customName));
 		} else {
 			names.append(FF7Text::toFF7(tr("Member %1").arg(QString::number(i - 8))));
 		}
@@ -396,7 +398,10 @@ bool TextPreview::drawTextArea(QPainter *painter)
 			QFont koreanFont = oldFont;
 			koreanFont.setFamily(QStringLiteral("Malgun Gothic"));
 			koreanFont.setPixelSize(16);
+			koreanFont.setBold(true);
 			painter->setFont(koreanFont);
+			painter->setPen(QColor(fontPalettes[fontColor].at(1)));
+			painter->drawText(x + 1, y + 14, koreanText);
 			painter->setPen(QColor(fontPalettes[fontColor].first()));
 			painter->drawText(x, y + 13, koreanText);
 			painter->setPen(oldPen);

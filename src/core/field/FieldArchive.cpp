@@ -1920,28 +1920,56 @@ bool FieldArchive::exportation(const QList<int> &selectedFields, const QString &
 }
 
 bool FieldArchive::importation(const QList<int> &selectedFields, const QString &directory,
-							   const QMap<Field::FieldSection, QString> &toImport)
+							   const QMap<Field::FieldSection, QString> &toImport,
+							   bool autosizeTextWindows)
 {
-	Q_UNUSED(directory) //TODO
-
 	if (selectedFields.isEmpty() || toImport.isEmpty()) {
 		return true;
 	}
+
+	QString path, extension;
 	int currentField = 0;
+	if (observer()) {
+		observer()->setObserverMaximum(quint32(selectedFields.size()));
+	}
 
 	for (const int &mapID : selectedFields) {
-		if (observer()->observerWasCanceled()) 	break;
+		if (observer() && observer()->observerWasCanceled()) 	break;
 
 		Field *f = field(mapID);
 		if (f) {
 			if (toImport.contains(Field::Scripts)) {
 				Section1File *section1 = f->scriptsAndTexts();
 				if (section1->isOpen()) {
-					//TODO
+					extension = toImport.value(Field::Scripts);
+					path = QDir::cleanPath(QString("%1/%2.%3").arg(directory, f->name(), extension));
+					if (QFile::exists(path)) {
+						QFile textImport(path);
+						Section1File::ExportFormat format;
+						if (extension == "txt") {
+							format = Section1File::TXTText;
+						} else if (extension == "xml") {
+							format = Section1File::XMLText;
+						} else {
+							return false;
+						}
+
+						if (!section1->importer(&textImport, format)) {
+							return false;
+						}
+						if (autosizeTextWindows) {
+							section1->autosizeTextWindows();
+						}
+						if (section1->isModified() && !f->isModified()) {
+							f->setModified(true);
+						}
+					}
 				}
 			}
 		}
-		observer()->setObserverValue(currentField++);
+		if (observer()) {
+			observer()->setObserverValue(currentField++);
+		}
 	}
 
 	return true;

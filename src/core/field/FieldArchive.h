@@ -206,7 +206,8 @@ public:
 	                 bool overwrite, const QMap<ExportType, QString> &toExport,
 	                 PsfTags *tags = nullptr);
 	bool importation(const QList<int> &selectedFields, const QString &directory,
-	                 const QMap<Field::FieldSection, QString> &toImport);
+	                 const QMap<Field::FieldSection, QString> &toImport,
+	                 bool autosizeTextWindows = true);
 
 	virtual FieldArchiveIO *io() const;
 	inline void setObserver(ArchiveObserver *observer) {

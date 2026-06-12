@@ -50,8 +50,11 @@ TextPreview::TextPreview(QWidget *parent) :
 
 void TextPreview::fillNames()
 {
-	FF7Text::setJapanese(Config::value("jp_txt", false).toBool());
-	QString lang = Config::value("jp_txt", false).toBool() ? QStringLiteral("ja") : QStringLiteral("en");
+	const bool kr = Config::value("kr_txt", false).toBool();
+	const bool jp = Config::value("jp_txt", false).toBool() || kr;
+	FF7Text::setJapanese(jp);
+	FF7Text::setKorean(kr);
+	QString lang = jp ? QStringLiteral("ja") : QStringLiteral("en");
 	QTranslator *translator = ff7tkInfo::translations().value(lang);
 	for (int i = 0; i < 12; ++i) {
 		if (i < 9) {
@@ -324,8 +327,9 @@ void TextPreview::drawWindow(QPainter *painter, int maxW, int maxH, QRgb colorTo
 
 bool TextPreview::drawTextArea(QPainter *painter)
 {
-	bool blink = false, useTimer = false,
-	     jp = Config::value("jp_txt", false).toBool();
+	bool blink = false, useTimer = false;
+	const bool kr = Config::value("kr_txt", false).toBool();
+	const bool jp = Config::value("jp_txt", false).toBool() || kr;
 	FF7Window ff7Window = getWindow();
 	spaced_characters = false;
 	multicolor = -1;
@@ -373,6 +377,34 @@ bool TextPreview::drawTextArea(QPainter *painter)
 			x = 8;
 			y += 16;
 			if (y > maxH-16)	break;
+		} else if (kr && charId >= 0xc0 && charId <= 0xcc) {
+			++i;
+			if (i >= size)	break;
+			QByteArray koreanBytes;
+			koreanBytes.append(char(charId));
+			koreanBytes.append(ff7Text.at(i));
+			const QString koreanText = FF7Text::toPC(koreanBytes);
+			const int charWidth = 31;
+			if (x + charWidth > maxW) {
+				x = 8;
+				y += 16;
+				if (y > maxH - 16)	break;
+			}
+			if (multicolor != -1) {
+				setFontColor(WindowBinFile::FontColor(multicolor));
+				multicolor = (multicolor + 1) % 8;
+			}
+			const QFont oldFont = painter->font();
+			const QPen oldPen = painter->pen();
+			QFont koreanFont = oldFont;
+			koreanFont.setFamily(QStringLiteral("Malgun Gothic"));
+			koreanFont.setPixelSize(16);
+			painter->setFont(koreanFont);
+			painter->setPen(QColor(fontPalettes[fontColor].first()));
+			painter->drawText(x, y + 13, koreanText);
+			painter->setPen(oldPen);
+			painter->setFont(oldFont);
+			x += spaced_characters ? spacedCharsW : charWidth;
 		} else if (charId<0xe7) {
 			if (!jp) {
 				if (charId==0xe0)//{CHOICE}

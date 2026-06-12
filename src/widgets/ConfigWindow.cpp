@@ -22,6 +22,7 @@
 #include "widgets/FontManager.h"
 #include <DialogPreview>
 #include <FF7Char>
+#include <FF7Text>
 
 ConfigWindow::ConfigWindow(QWidget *parent)
 	: QDialog(parent, Qt::Dialog | Qt::WindowCloseButtonHint)
@@ -95,6 +96,7 @@ ConfigWindow::ConfigWindow(QWidget *parent)
 	encodings = new QComboBox(textEditor);
 	encodings->addItem(tr("Latin"));
 	encodings->addItem(tr("Japanese"));
+	encodings->addItem(tr("Korean"));
 
 	listCharNames = new QComboBox(textEditor);
 	for (int i=0; i<9; ++i) {
@@ -251,7 +253,9 @@ void ConfigWindow::fillConfig()
 	windowColorBottomRight = Config::value("windowColorBottomRight", qRgb(0,0,32)).toUInt();
 
 	//optiText->setChecked(!Config::value("dontOptimizeTexts", false).toBool());
-	encodings->setCurrentIndex(Config::value("jp_txt", false).toBool() ? 1 : 0);
+	encodings->setCurrentIndex(Config::value("kr_txt", false).toBool()
+	                           ? 2
+	                           : (Config::value("jp_txt", false).toBool() ? 1 : 0));
 	expandedByDefault->setChecked(Config::value("scriptItemExpandedByDefault", false).toBool());
 
 
@@ -458,7 +462,12 @@ void ConfigWindow::accept()
 	Config::setValue("windowColorBottomLeft", windowColorBottomLeft);
 	Config::setValue("windowColorBottomRight", windowColorBottomRight);
 	//Config::setValue("dontOptimizeTexts", !optiText->isChecked());
-	Config::setValue("jp_txt", encodings->currentIndex() == 1);
+	const bool kr = encodings->currentIndex() == 2;
+	const bool jp = encodings->currentIndex() == 1 || kr;
+	Config::setValue("jp_txt", jp);
+	Config::setValue("kr_txt", kr);
+	FF7Text::setJapanese(jp);
+	FF7Text::setKorean(kr);
 	Config::setValue("scriptItemExpandedByDefault", expandedByDefault->isChecked());
 
 	for (int charId=0; charId<9; ++charId) {

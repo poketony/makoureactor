@@ -438,7 +438,9 @@ QSize FF7Font::calcSize(const QByteArray &ff7String, QList<int> &pagesPos)
 	qsizetype size=ff7String.size();
 	pagesPos.clear();
 	pagesPos.append(0);
-	bool jp = Config::value("jp_txt", false).toBool(), spaced_characters=false;
+	bool kr = Config::value("kr_txt", false).toBool(),
+	     jp = Config::value("jp_txt", false).toBool() || kr,
+	     spaced_characters=false;
 	int spacedCharsW = Config::value("spacedCharactersWidth", 13).toInt(),
 	    choiceW = Config::value("choiceWidth", 10).toInt(),
 	    tabW = Config::value("tabWidth", 4).toInt();
@@ -514,6 +516,11 @@ QSize FF7Font::calcSize(const QByteArray &ff7String, QList<int> &pagesPos)
 				width += spaced_characters ? spacedCharsW : charFullWidth(6, caract);
 			break;
 		default:
+			if (kr && caract >= 0xc0 && caract <= 0xcc && i + 1 < size) {
+				++i;
+				width += spaced_characters ? spacedCharsW : 31;
+				break;
+			}
 			if (!jp && caract==0xe0) {// {CHOICE}
 				width += spaced_characters ? spacedCharsW * choiceW : 3 * choiceW;
 			} else if (!jp && caract==0xe1) {// \t
